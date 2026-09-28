@@ -1,0 +1,1026 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BikeMe: cycling routes in London and the South East, with voice directions</title>
+  <meta name="description" content="Pick a route, press start and follow the voice. BikeMe gives you turn-by-turn directions on cycling routes across London and South East England, with plans for riders, creators, hotels and sportives." />
+  <meta name="theme-color" content="#FFFFFF" />
+  <meta property="og:title" content="BikeMe" />
+  <meta property="og:description" content="Ride anywhere in London and the South East. Just listen for the next turn." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #FFFFFF;
+      --ink: #0A0A0A;
+      --muted: #555555;
+      --grey: #F4F4F4;
+      --border: #E4E4E4;
+      --accent: #22C55E;
+      --accent-text: #15803D;
+      --on-dark: #FFFFFF;
+      --on-dark-muted: #C8C8C8;
+      --radius: 20px;
+      --max: 1120px;
+      --head: "Barlow Condensed", Impact, sans-serif;
+      color-scheme: light;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 120px; }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+    body { margin: 0; background: var(--bg); color: var(--ink); font-family: Barlow, system-ui, sans-serif; font-size: 18px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; }
+    h1, h2, h3 { font-family: var(--head); text-transform: uppercase; line-height: 0.95; margin: 0; letter-spacing: 0.01em; }
+    p, ul { margin: 0; }
+    ul { padding: 0; list-style: none; }
+    .wrap { width: 100%; max-width: var(--max); margin: 0 auto; padding: 0 16px; }
+    @media (min-width: 768px) { .wrap { padding: 0 32px; } }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+    .skip { position: absolute; left: -999px; top: 8px; background: var(--ink); color: var(--on-dark); padding: 10px 14px; border-radius: 8px; z-index: 50; }
+    .skip:focus { left: 8px; }
+    :focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+    .dark :focus-visible { outline-color: var(--accent); }
+    .icon-svg { width: 24px; height: 24px; flex: none; }
+
+    /* Nav */
+    .nav { position: sticky; top: 0; z-index: 20; background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+    .nav .wrap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; column-gap: 24px; }
+    .brand { font-family: var(--head); font-weight: 800; font-size: 30px; text-transform: uppercase; text-decoration: none; letter-spacing: 0.01em; min-height: 64px; display: inline-flex; align-items: center; }
+    .brand span { color: var(--accent-text); }
+    .nav-links { order: 3; width: 100%; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; margin: 0 -8px; padding-bottom: 4px; }
+    .nav-links::-webkit-scrollbar { display: none; }
+    .nav-links a { flex: none; display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px; text-decoration: none; font-weight: 500; color: var(--muted); border-radius: 8px; }
+    .nav-links a:hover { color: var(--ink); background: var(--grey); }
+    .nav-links a:focus-visible { outline-offset: -3px; }
+    .nav .btn { order: 2; }
+    @media (min-width: 820px) {
+      .nav .wrap { flex-wrap: nowrap; }
+      .nav-links { order: 2; width: auto; margin: 0 0 0 auto; padding: 0; overflow: visible; }
+      .nav .btn { order: 3; }
+    }
+
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 0 22px; border-radius: 14px; border: 2px solid var(--accent); background: var(--accent); color: var(--ink); font-family: var(--head); font-weight: 700; font-size: 20px; line-height: 1; text-transform: uppercase; letter-spacing: 0.03em; text-decoration: none; cursor: pointer; transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease; }
+    .btn:hover { box-shadow: 0 5px 0 var(--ink); transform: translateY(-2px); }
+    .btn:active { transform: translateY(0); box-shadow: none; }
+    .btn.secondary { background: var(--bg); color: var(--ink); border-color: var(--ink); }
+    .btn.black { background: var(--ink); color: var(--on-dark); border-color: var(--ink); }
+    .btn.black:hover { box-shadow: 0 5px 0 var(--accent); }
+    .btn.small { min-height: 44px; font-size: 18px; padding: 0 16px; }
+    .btn.block { width: 100%; }
+    .btn svg { width: 22px; height: 22px; }
+    button.btn::after { content: "Demo"; font-family: Barlow, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; padding: 3px 6px; border-radius: 6px; background: rgba(10, 10, 10, 0.1); }
+    button.btn.black::after { background: rgba(255, 255, 255, 0.18); }
+
+    /* Hero */
+    .hero { padding: 40px 0 72px; overflow: hidden; }
+    .hero .wrap { display: grid; gap: 56px; align-items: center; }
+    @media (min-width: 960px) { .hero { padding: 72px 0 104px; } .hero .wrap { grid-template-columns: 1.1fr 0.9fr; } }
+    .eyebrow { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-text); margin-bottom: 16px; }
+    .eyebrow::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.25); }
+    .hero h1 { font-size: clamp(56px, 11vw, 112px); font-weight: 800; }
+    .hero h1 em { font-style: normal; color: var(--on-dark); background: var(--ink); padding: 0 0.12em; display: inline-block; transform: rotate(-1.5deg); }
+    .hero .lede { font-size: clamp(19px, 2.2vw, 22px); color: var(--muted); max-width: 36ch; margin: 24px 0 32px; }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
+    .stores { display: flex; flex-wrap: wrap; gap: 10px 20px; margin-top: 24px; color: var(--muted); font-size: 15px; font-weight: 500; }
+    .stores span { display: inline-flex; align-items: center; gap: 8px; }
+    .stores svg { width: 18px; height: 18px; }
+    .phone-stage { position: relative; display: flex; justify-content: center; padding-bottom: 12px; }
+    .phone-stage::before { content: ""; position: absolute; inset: 8% -12% 8% -12%; background: var(--accent); border-radius: 40px; transform: rotate(6deg); }
+    .phone { position: relative; width: min(340px, 82vw); aspect-ratio: 390 / 844; border-radius: 48px; border: 11px solid var(--ink); background: var(--ink); box-shadow: 0 30px 60px rgba(10, 10, 10, 0.3); overflow: hidden; }
+    .phone iframe { position: absolute; top: 0; left: 0; width: 390px; height: 844px; border: 0; transform-origin: top left; background: var(--bg); }
+    .phone-caption { position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--on-dark); font-weight: 700; font-size: 14px; padding: 6px 14px; border-radius: 999px; white-space: nowrap; }
+
+    /* Voice cue ticker */
+    .ticker { background: var(--ink); color: var(--on-dark); overflow: hidden; border-block: 4px solid var(--accent); }
+    .ticker-track { display: flex; gap: 48px; padding: 18px 0; width: max-content; animation: scroll 40s linear infinite; font-family: var(--head); font-weight: 700; font-size: 26px; text-transform: uppercase; }
+    .ticker-track span { display: inline-flex; align-items: center; gap: 14px; white-space: nowrap; }
+    .ticker-track span::before { content: ""; width: 12px; height: 12px; background: var(--accent); border-radius: 3px; transform: rotate(45deg); }
+    @keyframes scroll { to { transform: translateX(-50%); } }
+
+    /* Sections */
+    section { padding: 72px 0; }
+    @media (min-width: 960px) { section { padding: 104px 0; } }
+    section + section:not(.band) { border-top: 1px solid var(--border); }
+    .section-head { max-width: 680px; margin-bottom: 40px; }
+    .section-head h2 { font-size: clamp(44px, 7vw, 72px); font-weight: 800; }
+    .section-head h2 mark { background: none; color: var(--accent-text); }
+    .section-head p { color: var(--muted); margin-top: 16px; font-size: 20px; }
+    .kicker { font-weight: 700; font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-text); margin-bottom: 12px; }
+
+    /* Steps */
+    .steps { display: grid; gap: 16px; counter-reset: step; }
+    @media (min-width: 768px) { .steps { grid-template-columns: repeat(3, 1fr); } }
+    .step { background: var(--bg); border: 2px solid var(--ink); border-radius: var(--radius); padding: 28px; box-shadow: 6px 6px 0 var(--ink); }
+    .step::before { counter-increment: step; content: counter(step); display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; background: var(--accent); color: var(--ink); font-family: var(--head); font-weight: 800; font-size: 32px; margin-bottom: 20px; }
+    .step h3 { font-size: 34px; margin-bottom: 8px; }
+    .step p { color: var(--muted); }
+
+    /* Tier tags */
+    .tag { display: inline-flex; align-items: center; flex: none; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; line-height: 1; padding: 5px 8px; border-radius: 6px; border: 1.5px solid var(--ink); color: var(--ink); background: var(--bg); white-space: nowrap; }
+    .tag.premium { background: var(--accent); border-color: var(--accent); }
+    .tag.creator { background: var(--ink); color: var(--on-dark); }
+    .legend { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 20px; font-size: 15px; color: var(--muted); }
+    .legend span { display: inline-flex; align-items: center; gap: 8px; }
+
+    /* Features */
+    .feature-grid { display: grid; gap: 16px; }
+    @media (min-width: 720px) { .feature-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1040px) { .feature-grid { grid-template-columns: repeat(3, 1fr); } }
+    .group { border: 1.5px solid var(--border); border-radius: var(--radius); padding: 24px; background: var(--bg); }
+    .group-head { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+    .group .icon { width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; background: var(--accent); color: var(--ink); flex: none; }
+    .group .icon svg { width: 26px; height: 26px; }
+    .group h3 { font-size: 30px; }
+    .group li { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 9px 0; border-top: 1px solid var(--border); font-size: 16px; line-height: 1.35; }
+    .group li small { display: block; color: var(--muted); font-size: 13px; }
+    .group.dark { background: var(--ink); color: var(--on-dark); border-color: var(--ink); }
+    .group.dark li { border-top-color: #2A2A2A; }
+    .group.dark li small { color: var(--on-dark-muted); }
+    .group.dark .tag:not(.premium) { border-color: var(--on-dark); }
+    .group.dark .tag.creator { background: var(--on-dark); color: var(--ink); }
+    .group.dark .tag:not(.premium):not(.creator) { background: var(--ink); color: var(--on-dark); }
+    @media (min-width: 1040px) { .group.span2 { grid-column: span 2; } .group.span2 ul { columns: 2; column-gap: 32px; } .group.span2 li { break-inside: avoid; } }
+
+    /* Health (preview: not built yet, everything here is illustrative) */
+    .tag.soon { border-style: dashed; }
+    .health-visual { margin: 0; display: grid; gap: 16px; }
+    .health-visual > * { min-width: 0; }
+    @media (min-width: 960px) { .health-visual { grid-template-columns: 1.05fr 0.95fr; align-items: start; } .health-visual figcaption { grid-column: 1 / -1; } }
+    .health-visual figcaption { font-size: 14px; color: var(--muted); }
+    .health-side { display: grid; gap: 16px; }
+    .mini-label { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; margin-bottom: 10px; font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; line-height: 1.3; }
+    .mini-label span { font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--muted); }
+    .run-card { display: grid; gap: 24px; border: 2px solid var(--ink); border-radius: var(--radius); padding: 20px; box-shadow: 6px 6px 0 var(--ink); background: var(--bg); }
+    @media (min-width: 560px) { .run-card { padding: 28px; } }
+    .run-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 16px; }
+    .run-name { font-family: var(--head); font-weight: 800; font-size: 34px; line-height: 1; text-transform: uppercase; }
+    .run-when { font-size: 15px; font-weight: 500; color: var(--muted); }
+    .run-meta { flex-basis: 100%; display: flex; align-items: center; gap: 8px; font-size: 15px; color: var(--muted); }
+    .run-meta svg { width: 18px; height: 18px; flex: none; color: var(--ink); }
+    .run-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; margin: 0; background: var(--border); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    @media (min-width: 560px) { .run-stats { grid-template-columns: repeat(4, 1fr); } }
+    .run-stats div { background: var(--bg); padding: 12px 14px; }
+    .run-stats dt { font-size: 13px; font-weight: 500; color: var(--muted); }
+    .run-stats dd { margin: 0; font-family: var(--head); font-weight: 800; font-size: 32px; line-height: 1.05; font-variant-numeric: tabular-nums; }
+    .run-stats dd small, .well strong small, .train dd small { font-family: Barlow, sans-serif; font-size: 13px; font-weight: 500; color: var(--muted); margin-left: 3px; }
+    .hr-chart svg { display: block; width: 100%; height: auto; }
+    .hr-axis { display: flex; justify-content: space-between; padding-left: 7.5%; margin-top: 4px; font-size: 13px; color: var(--muted); }
+    .zone-bar { display: flex; gap: 2px; height: 18px; border-radius: 6px; overflow: hidden; }
+    .zone-bar span, .zone-list i { background: var(--z); }
+    .zone-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 10px 8px; margin-top: 12px; }
+    .zone-list li { display: grid; grid-template-columns: auto 1fr; column-gap: 6px; font-size: 14px; font-weight: 700; white-space: nowrap; line-height: 1.3; }
+    .zone-list i { grid-row: span 2; width: 12px; height: 12px; margin-top: 3px; border-radius: 3px; box-shadow: inset 0 0 0 1px rgba(10, 10, 10, 0.25); }
+    .zone-list small { grid-column: 2; font-size: 13px; font-weight: 500; color: var(--muted); }
+    .z1 { --z: #DCFCE7; } .z2 { --z: #86EFAC; } .z3 { --z: #22C55E; } .z4 { --z: #15803D; } .z5 { --z: #0A0A0A; }
+    .train { background: var(--ink); color: var(--on-dark); border-radius: var(--radius); padding: 20px; }
+    .train dl { display: grid; gap: 12px; margin: 0; }
+    .train dl div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+    .train dt { font-size: 14px; color: var(--on-dark-muted); }
+    .train dd { margin: 0; font-family: var(--head); font-weight: 800; font-size: 36px; line-height: 1; font-variant-numeric: tabular-nums; }
+    .train dd small, .train .mini-label span { color: var(--on-dark-muted); }
+    .train dd .status { color: var(--accent); font-weight: 700; }
+    @media (min-width: 480px) { .train { padding: 24px; } .train dl { grid-template-columns: repeat(3, 1fr); } .train dl div { display: block; } }
+    .well { display: grid; gap: 10px; }
+    @media (min-width: 480px) { .well { grid-template-columns: repeat(2, 1fr); } }
+    .well li { display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 1.5px solid var(--border); border-radius: 16px; padding: 14px 16px; }
+    .well p { font-size: 13px; line-height: 1.3; color: var(--muted); }
+    .well strong { display: block; font-family: var(--head); font-weight: 800; font-size: 30px; line-height: 1.05; color: var(--ink); font-variant-numeric: tabular-nums; }
+    .well svg { width: 72px; height: 28px; flex: none; color: var(--accent-text); }
+    .health-foot { display: grid; gap: 40px; margin-top: 56px; }
+    @media (min-width: 900px) { .health-foot { grid-template-columns: 0.9fr 1.1fr; } }
+    .health-foot .ticks strong { display: block; font-size: 18px; }
+    .health-foot .ticks small { display: block; color: var(--muted); font-size: 15px; }
+    .chips.devices { gap: 8px; }
+    .chips.devices .chip { min-height: 44px; padding: 8px 14px; gap: 8px; border-width: 1.5px; font-size: 15px; }
+    .chips.devices .icon-svg { width: 18px; height: 18px; }
+
+    /* Integrations */
+    .strip { display: grid; gap: 24px; align-items: center; }
+    @media (min-width: 900px) { .strip { grid-template-columns: 0.8fr 1.2fr; } }
+    .strip h2 { font-size: clamp(40px, 6vw, 60px); font-weight: 800; }
+    .strip > div > p { color: var(--muted); margin-top: 12px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 12px; }
+    .chip { display: inline-flex; align-items: center; gap: 12px; min-height: 56px; padding: 10px 16px; border: 2px solid var(--ink); border-radius: 999px; font-weight: 700; font-size: 17px; line-height: 1.2; }
+    .chip .tag { margin-left: 4px; }
+
+    /* Photos (Unsplash) */
+    .ph { position: relative; margin: 0; aspect-ratio: 4 / 3; border-radius: 16px; overflow: hidden; display: grid; place-content: center; justify-items: center; gap: 8px; padding: 16px; text-align: center; color: var(--muted); background-color: var(--grey); background-image: repeating-linear-gradient(135deg, transparent 0 14px, rgba(10, 10, 10, 0.045) 14px 16px); border: 1px solid var(--border); }
+    .ph.wide { aspect-ratio: 16 / 9; }
+    .ph.photo { display: block; padding: 0; background-image: none; }
+    .ph.photo img, .ph.photo picture { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .ph.photo .credit { position: absolute; right: 8px; bottom: 8px; margin: 0; padding: 3px 8px; border-radius: 6px; background: rgba(10, 10, 10, 0.72); color: #FFFFFF; font-size: 11px; font-weight: 500; line-height: 1.4; }
+    .ph.photo .credit a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+    /* City guides */
+    .cities { display: grid; gap: 16px; }
+    @media (min-width: 640px) { .cities { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1000px) { .cities { grid-template-columns: repeat(3, 1fr); } }
+    .city { border: 1.5px solid var(--border); border-radius: var(--radius); padding: 12px 12px 20px; display: flex; flex-direction: column; gap: 14px; }
+    .city h3 { font-size: 30px; padding: 0 8px; }
+    .city p { color: var(--muted); font-size: 16px; padding: 0 8px; flex: 1; }
+    .city .btn { margin: 0 8px; align-self: flex-start; }
+
+    /* Routes */
+    .routes { display: grid; gap: 10px; }
+    @media (min-width: 768px) { .routes { grid-template-columns: repeat(2, 1fr); } }
+    .route { display: flex; align-items: center; gap: 16px; min-height: 64px; background: var(--bg); border: 1.5px solid var(--border); border-radius: 16px; padding: 14px 18px; text-decoration: none; transition: border-color 150ms ease; }
+    .route:hover { border-color: var(--accent); }
+    .route .km { font-family: var(--head); font-weight: 800; font-size: 32px; line-height: 1; min-width: 64px; font-variant-numeric: tabular-nums; }
+    .route .km small { display: block; font-family: Barlow, sans-serif; font-size: 11px; letter-spacing: 0.1em; color: var(--muted); }
+    .route strong { display: block; font-size: 18px; line-height: 1.25; }
+    .route span { color: var(--muted); font-size: 15px; }
+    .routes:empty { display: none; }
+    .route-region { font-family: var(--head); font-weight: 800; font-size: 24px; text-transform: uppercase; margin: 32px 0 12px; }
+    .route-region:first-child { margin-top: 0; }
+    .routes-note { margin-top: 24px; color: var(--muted); }
+
+    /* Pricing */
+    .plans { display: grid; gap: 16px; align-items: stretch; }
+    @media (min-width: 900px) { .plans { grid-template-columns: repeat(3, 1fr); } }
+    .plan { position: relative; display: flex; flex-direction: column; gap: 20px; border: 1.5px solid var(--border); border-radius: var(--radius); padding: 28px; background: var(--bg); }
+    .plan.featured { border: 3px solid var(--accent); box-shadow: 8px 8px 0 var(--ink); }
+    .plan .badge { position: absolute; top: -14px; left: 24px; background: var(--accent); color: var(--ink); font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; }
+    .plan h3 { font-size: 36px; }
+    .plan .for { color: var(--muted); font-size: 16px; margin-top: 6px; }
+    .price { font-family: var(--head); font-weight: 800; font-size: 56px; line-height: 1; }
+    .price small { font-family: Barlow, sans-serif; font-weight: 500; font-size: 17px; color: var(--muted); margin-left: 4px; }
+    .price-alt { color: var(--muted); font-size: 15px; margin-top: 6px; }
+    .ticks { display: grid; gap: 10px; flex: 1; }
+    .ticks li { display: flex; gap: 10px; font-size: 16px; line-height: 1.4; }
+    .ticks svg { width: 20px; height: 20px; flex: none; margin-top: 1px; color: var(--accent-text); }
+    .preview-note { margin-top: 28px; display: flex; align-items: center; gap: 12px; padding: 16px 20px; background: var(--grey); border-radius: 14px; font-weight: 700; }
+    .preview-note::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex: none; }
+
+    /* Business */
+    .biz { display: grid; gap: 16px; }
+    @media (min-width: 720px) { .biz { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1040px) { .biz { grid-template-columns: repeat(4, 1fr); } }
+    .seg { border: 1.5px solid var(--border); border-radius: var(--radius); padding: 12px 12px 24px; display: flex; flex-direction: column; gap: 16px; background: var(--bg); }
+    .seg-body { padding: 0 8px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+    .seg h3 { font-size: 30px; }
+    .seg .pitch { font-size: 17px; font-weight: 500; line-height: 1.45; }
+    .seg .meta { font-size: 14px; color: var(--muted); }
+    .seg .ticks { flex: 1; }
+    .seg .ticks li { font-size: 15px; }
+    .seg .btn { align-self: flex-start; }
+    .seg.major { border: 2px solid var(--ink); }
+    @media (min-width: 720px) { .seg.major { grid-column: span 2; } }
+    @media (min-width: 1040px) {
+      .seg.major { flex-direction: row; padding: 12px; }
+      .seg.major .ph { width: 45%; flex: none; aspect-ratio: auto; min-height: 300px; }
+      .seg.major .seg-body { padding: 12px 12px 12px 4px; }
+      .seg.major h3 { font-size: 40px; }
+    }
+
+    /* FAQ */
+    .faq { max-width: 820px; }
+    .faq details { border-top: 1.5px solid var(--border); }
+    .faq details:last-child { border-bottom: 1.5px solid var(--border); }
+    .faq summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 64px; padding: 12px 0; font-weight: 700; font-size: 20px; line-height: 1.3; }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary::after { content: "+"; flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; background: var(--grey); font-size: 24px; font-weight: 500; transition: transform 150ms ease, background-color 150ms ease; }
+    .faq details[open] summary::after { content: "\2212"; background: var(--accent); }
+    .faq details p { padding: 0 48px 20px 0; color: var(--muted); }
+
+    /* CTA band */
+    .band { background: var(--ink); color: var(--on-dark); border-top: 6px solid var(--accent); }
+    .band .wrap { display: grid; gap: 28px; align-items: center; }
+    @media (min-width: 900px) { .band .wrap { grid-template-columns: 1fr auto; } }
+    .band h2 { font-size: clamp(48px, 8vw, 88px); font-weight: 800; }
+    .band h2 span { color: var(--accent); }
+    .band p { color: var(--on-dark-muted); margin-top: 16px; font-size: 20px; }
+    .band .btn:hover { box-shadow: 0 5px 0 var(--on-dark); }
+
+    footer { padding: 40px 0; border-top: 1px solid var(--border); color: var(--muted); font-size: 15px; }
+    footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 32px; justify-content: space-between; align-items: center; }
+    footer .brand { font-size: 24px; min-height: 44px; color: var(--ink); }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <span id="demo-hint" class="sr-only">Demo button. Not connected yet.</span>
+
+  <!-- Inline SVG symbols reused across the page -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="i-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21" /></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></symbol>
+    <symbol id="i-watch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="6" /><polyline points="12 10 12 12 13 13" /><path d="m16.13 7.66-.81-4.05a2 2 0 0 0-2-1.61h-2.68a2 2 0 0 0-2 1.61l-.78 4.05" /><path d="m7.88 16.36.8 4a2 2 0 0 0 2 1.61h2.72a2 2 0 0 0 2-1.61l.81-4.05" /></symbol>
+    <symbol id="i-heart-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" /><path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27" /></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v4a2 2 0 0 0 2 2h4" /></symbol>
+  </svg>
+
+  <header class="nav">
+    <div class="wrap">
+      <a class="brand" href="/" aria-label="BikeMe home">Bike<span>Me</span></a>
+      <nav class="nav-links" aria-label="Main">
+        <a href="#features">Features</a>
+        <a href="#health">Health</a>
+        <a href="#business">Business</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#routes">Routes</a>
+      </nav>
+      <a class="btn small" href="/app/">Try the app</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="wrap">
+        <div>
+          <p class="eyebrow">Cycling routes for London and the South East</p>
+          <h1 id="hero-title">Just ride.<br /><em>We'll say</em><br />where.</h1>
+          <p class="lede">Pick a route, press start and put your phone away. BikeMe tells you every turn before you reach it, so you never stop to check a map.</p>
+          <div class="cta-row">
+            <a class="btn" href="/app/">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3" /></svg>
+              Try it in your browser
+            </a>
+            <a class="btn secondary" href="#how">How it works</a>
+          </div>
+          <div class="stores">
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="3" /><path d="M11 18h2" /></svg>iPhone app coming soon</span>
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="3" /><path d="M11 18h2" /></svg>Android app coming soon</span>
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>Free during the preview</span>
+          </div>
+        </div>
+
+        <div class="phone-stage">
+          <div class="phone" id="phone">
+            <iframe src="/app/" title="The BikeMe app, live in your browser" loading="lazy"></iframe>
+          </div>
+          <p class="phone-caption">Live app. Tap around.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track">
+        <span>In 400 metres, turn left</span><span>Bear right onto Serpentine Walk</span><span>Halfway there. Keep it up</span><span>Turn right, then turn left</span><span>5 kilometres. Average speed 24 km/h</span><span>Back on route</span>
+        <span>In 400 metres, turn left</span><span>Bear right onto Serpentine Walk</span><span>Halfway there. Keep it up</span><span>Turn right, then turn left</span><span>5 kilometres. Average speed 24 km/h</span><span>Back on route</span>
+      </div>
+    </div>
+
+    <section id="how" aria-labelledby="how-title">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 id="how-title">Three steps. No map-checking.</h2>
+          <p>Designed for cycling somewhere new without getting lost or breaking your cadence.</p>
+        </div>
+        <ol class="steps" role="list" style="padding:0;margin:0;list-style:none">
+          <li class="step">
+            <h3>Pick a route</h3>
+            <p>Browse routes from Richmond Park to the Olympic Park, or draw your own on the map.</p>
+          </li>
+          <li class="step">
+            <h3>Press start</h3>
+            <p>Phone on your mount, headphones or bone-conduction on. BikeMe follows your GPS along the route.</p>
+          </li>
+          <li class="step">
+            <h3>Follow the voice</h3>
+            <p>Hear every turn at 400 metres and again as you reach it. Drift off route and it tells you.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="features" aria-labelledby="features-title">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="kicker">Everything in the app</p>
+          <h2 id="features-title">Built for cycling, not driving</h2>
+          <p>Directions that follow cycle paths, towpaths and quiet lanes, where car sat-navs can't go. Most of it is free.</p>
+          <div class="legend" aria-label="Plan tags">
+            <span><span class="tag">Free</span> Everyone</span>
+            <span><span class="tag premium">Premium</span> Riders who want more</span>
+            <span><span class="tag creator">Creator</span> Clubs, coaches, sportives</span>
+          </div>
+        </div>
+
+        <div class="feature-grid">
+          <article class="group">
+            <div class="group-head">
+              <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36 6.36-2.12z" /></svg></div>
+              <h3>Discover</h3>
+            </div>
+            <ul>
+              <li>Route library with map and list <span class="tag">Free</span></li>
+              <li>Filters for distance, loops and trails <span class="tag">Free</span></li>
+              <li>Search by place or name <span class="tag">Free</span></li>
+              <li>All, My routes and Verified tabs <span class="tag">Free</span></li>
+              <li>Verified routes badge <span class="tag">Free</span></li>
+              <li>City guides <span class="tag">Free</span></li>
+              <li>Cyclist-friendly hotel finder <span class="tag">Free</span></li>
+              <li>Popular routes nearby <span class="tag">Free</span></li>
+            </ul>
+          </article>
+
+          <article class="group">
+            <div class="group-head">
+              <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.1 6 9.9 4 3 7v13l6.9-3 4.2 2 6.9-3V3z" /><path d="M9.9 4v13" /><path d="M14.1 6v13" /></svg></div>
+              <h3>Route detail</h3>
+            </div>
+            <ul>
+              <li>Map, distance, climb, turns, elevation <span class="tag">Free</span></li>
+              <li>Every voice cue listed <span class="tag">Free</span></li>
+              <li>Creator handle and group <span class="tag">Free</span></li>
+              <li>Photo gallery <span class="tag">Free</span></li>
+              <li><span>Points of interest<small>Water, toilets, food, first aid, viewpoints</small></span> <span class="tag">Free</span></li>
+              <li>Share link, QR code, embed <span class="tag">Free</span></li>
+              <li>GPX download <span class="tag">Free</span></li>
+              <li>TCX export with turn cues for watches <span class="tag premium">Premium</span></li>
+              <li>Download for offline <span class="tag">Free</span></li>
+              <li>3D flyover <span class="tag premium">Premium</span></li>
+              <li><span>Start modes<small>On course, virtual outdoor, treadmill</small></span> <span class="tag">Free</span></li>
+            </ul>
+          </article>
+
+          <article class="group dark">
+            <div class="group-head">
+              <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z" /><path d="M15.5 8.5a5 5 0 0 1 0 7" /><path d="M19 5a10 10 0 0 1 0 14" /></svg></div>
+              <h3>Navigation &amp; voice</h3>
+            </div>
+            <ul>
+              <li>Turn-by-turn voice with street names <span class="tag">Free</span></li>
+              <li>Custom voice messages along a route <span class="tag">Free</span></li>
+              <li>Off-route warning and back on route <span class="tag">Free</span></li>
+              <li>Halfway and kilometre splits <span class="tag">Free</span></li>
+              <li>Cue distance: 200, 400 or 800 m <span class="tag">Free</span></li>
+              <li>Speak stats by time or distance <span class="tag">Free</span></li>
+              <li>Voice in 9 languages <span class="tag">Free</span></li>
+              <li>Enhanced voices <span class="tag premium">Premium</span></li>
+              <li>Haptic turn alerts <span class="tag">Free</span></li>
+              <li><span>Music ducking and lock-screen guidance<small>Coming with the phone apps</small></span> <span class="tag">Free</span></li>
+              <li>Pre-recorded audio clips <span class="tag creator">Creator</span></li>
+              <li><span>AR route overlay<small>Coming later</small></span> <span class="tag">Free</span></li>
+            </ul>
+          </article>
+
+          <article class="group">
+            <div class="group-head">
+              <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></svg></div>
+              <h3>Ride tracking</h3>
+            </div>
+            <ul>
+              <li><span>Live stats<small>Time, distance, speed, remaining, finish estimate</small></span> <span class="tag">Free</span></li>
+              <li>Kilometre splits <span class="tag">Free</span></li>
+              <li>Ride history logbook <span class="tag">Free</span></li>
+              <li>Free ride without a route <span class="tag">Free</span></li>
+              <li>Save a free ride as a route <span class="tag">Free</span></li>
+              <li><span>Heart rate, cadence, power<small>Coming with Health</small></span> <span class="tag">Free</span></li>
+              <li>Share image with stats <span class="tag">Free</span></li>
+              <li>Interval training <span class="tag premium">Premium</span></li>
+              <li>Live tracking link for friends <span class="tag premium">Premium</span></li>
+              <li>Indoor trainer mode with street view <span class="tag premium">Premium</span></li>
+            </ul>
+          </article>
+
+          <article class="group">
+            <div class="group-head">
+              <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg></div>
+              <h3>Create</h3>
+            </div>
+            <ul>
+              <li><span>Tap to draw, snaps to paths<small>Monthly cap on Free</small></span> <span class="tag">Free</span></li>
+              <li>Unlimited routes <span class="tag premium">Premium</span></li>
+              <li>Custom voice messages <span class="tag">Free</span></li>
+              <li>GPX import <span class="tag">Free</span></li>
+              <li>Undo, redo, drag points <span class="tag">Free</span></li>
+              <li>Out and back, reverse, complete loop <span class="tag">Free</span></li>
+              <li>Points of interest palette <span class="tag">Free</span></li>
+              <li><span>Topo and satellite map layers<small>Standard map is free</small></span> <span class="tag premium">Premium</span></li>
+              <li>Import from Strava <span class="tag premium">Premium</span></li>
+              <li>Photos, logo and audio on routes <span class="tag creator">Creator</span></li>
+            </ul>
+          </article>
+
+          <article class="group">
+            <div class="group-head">
+              <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /><path d="M4 22h16" /><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></svg></div>
+              <h3>Community &amp; challenges</h3>
+            </div>
+            <ul>
+              <li>Groups and cycling clubs, public or private <span class="tag">Free</span></li>
+              <li>Challenges with shared goals <span class="tag">Free</span></li>
+              <li><span>Leaderboards<small>Single route, cumulative, series</small></span> <span class="tag">Free</span></li>
+              <li>Digital badges and medals <span class="tag">Free</span></li>
+              <li>Virtual rides and sportive submission <span class="tag">Free</span></li>
+            </ul>
+          </article>
+
+          <article class="group span2">
+            <div class="group-head">
+              <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 17H7A5 5 0 0 1 7 7h2" /><path d="M15 7h2a5 5 0 1 1 0 10h-2" /><line x1="8" x2="16" y1="12" y2="12" /></svg></div>
+              <h3>Integrations &amp; account</h3>
+            </div>
+            <ul>
+              <li>Apple Watch standalone app <span class="tag">Free</span></li>
+              <li>Apple Health and Health Connect <span class="tag">Free</span></li>
+              <li>Strava sync and export <span class="tag premium">Premium</span></li>
+              <li><span>Garmin, Wahoo and Hammerhead course export<small>GPX free, TCX with cues on Premium</small></span> <span class="tag">Free</span></li>
+              <li>Sign in with Apple, Google or email <span class="tag">Free</span></li>
+              <li>Units, accessibility, VoiceOver-first design <span class="tag">Free</span></li>
+              <li>Manage plan, delete account <span class="tag">Free</span></li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="health" aria-labelledby="health-title">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="kicker">Health and wearables</p>
+          <h2 id="health-title">Your bike computer data, <mark>in every ride</mark></h2>
+          <p>BikeMe will pull heart rate, cadence, power, training load, sleep and recovery from your Apple Watch, Garmin, Wahoo or any other device, and attach it to each ride and to your profile.</p>
+          <div class="legend">
+            <span><span class="tag soon">Coming soon</span> A preview of what we're building</span>
+          </div>
+        </div>
+
+        <!-- Mock data only. Health sync is not built yet. -->
+        <figure class="health-visual">
+          <article class="run-card">
+            <div class="run-top">
+              <p class="run-name">Hyde Park Loop</p>
+              <p class="run-when">Sun · 24.6 km · 52:18</p>
+              <p class="run-meta"><svg aria-hidden="true"><use href="#i-watch" /></svg>Wahoo ELEMNT BOLT · synced</p>
+            </div>
+
+            <dl class="run-stats">
+              <div><dt>Avg HR</dt><dd>152<small>bpm</small></dd></div>
+              <div><dt>Max HR</dt><dd>178<small>bpm</small></dd></div>
+              <div><dt>Cadence</dt><dd>88<small>rpm</small></dd></div>
+              <div><dt>Power</dt><dd>212<small>w</small></dd></div>
+            </dl>
+
+            <div class="hr-chart">
+              <p class="mini-label">Heart rate <span>Dashed line: average</span></p>
+              <svg viewBox="0 0 320 120" role="img" aria-label="Illustrative heart rate chart: rises from about 105 bpm at the start to 150 to 160 bpm through the middle of the ride, averaging 152 bpm and peaking at 178 bpm near the end.">
+                <rect x="24" y="0" width="296" height="24" fill="#22C55E" fill-opacity="0.18" />
+                <rect x="24" y="24" width="296" height="24" fill="#22C55E" fill-opacity="0.13" />
+                <rect x="24" y="48" width="296" height="24" fill="#22C55E" fill-opacity="0.09" />
+                <rect x="24" y="72" width="296" height="24" fill="#22C55E" fill-opacity="0.05" />
+                <rect x="24" y="96" width="296" height="24" fill="#0A0A0A" fill-opacity="0.03" />
+                <g font-family="Barlow, sans-serif" font-size="10" font-weight="700" fill="#555555">
+                  <text x="0" y="15.5">Z5</text><text x="0" y="39.5">Z4</text><text x="0" y="63.5">Z3</text><text x="0" y="87.5">Z2</text><text x="0" y="111.5">Z1</text>
+                </g>
+                <line x1="24" y1="50.7" x2="320" y2="50.7" stroke="#0A0A0A" stroke-opacity="0.55" stroke-width="1.25" stroke-dasharray="4 4" />
+                <polyline fill="none" stroke="#15803D" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="24,114.7 38.8,96 53.6,80 68.4,69.3 83.2,61.3 98,56 112.8,53.3 127.6,50.7 142.4,52 157.2,48 172,45.3 186.8,49.3 201.6,53.3 216.4,46.7 231.2,42.7 246,40 260.8,44 275.6,37.3 290.4,29.3 305.2,16 318,34.7" />
+                <circle cx="305.2" cy="16" r="3.5" fill="#0A0A0A" />
+              </svg>
+              <div class="hr-axis" aria-hidden="true"><span>0 min</span><span>24</span><span>48 min</span></div>
+            </div>
+
+            <div>
+              <p class="mini-label">Time in zone <span>48 min</span></p>
+              <div class="zone-bar" aria-hidden="true">
+                <span class="z1" style="flex: 3"></span><span class="z2" style="flex: 9"></span><span class="z3" style="flex: 18"></span><span class="z4" style="flex: 14"></span><span class="z5" style="flex: 4"></span>
+              </div>
+              <ul class="zone-list">
+                <li class="z1"><i></i>Z1 · 3 min<small>Warm-up</small></li>
+                <li class="z2"><i></i>Z2 · 9 min<small>Easy</small></li>
+                <li class="z3"><i></i>Z3 · 18 min<small>Aerobic</small></li>
+                <li class="z4"><i></i>Z4 · 14 min<small>Threshold</small></li>
+                <li class="z5"><i></i>Z5 · 4 min<small>Maximum</small></li>
+              </ul>
+            </div>
+          </article>
+
+          <div class="health-side">
+            <div class="train">
+              <p class="mini-label">Training <span>Last 7 days</span></p>
+              <dl>
+                <div><dt>Training load</dt><dd>184<small class="status">Productive</small></dd></div>
+                <div><dt>VO2 max</dt><dd>51</dd></div>
+                <div><dt>Recovery</dt><dd>22<small>h</small></dd></div>
+              </dl>
+            </div>
+
+            <div>
+              <p class="mini-label">Daily wellness <span>Today, with 7-day trend</span></p>
+              <ul class="well">
+                <li>
+                  <p>Resting HR<strong>48<small>bpm</small></strong></p>
+                  <svg viewBox="0 0 72 28" role="img" aria-label="Resting heart rate trend over 7 days, falling from 52 to 48 bpm"><polyline fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="2,4 13.3,9 24.7,14 36,14 47.3,19 58.7,24 70,24" /><circle cx="70" cy="24" r="2.5" fill="currentColor" /></svg>
+                </li>
+                <li>
+                  <p>HRV<strong>62<small>ms</small></strong></p>
+                  <svg viewBox="0 0 72 28" role="img" aria-label="Heart rate variability trend over 7 days, rising from 55 to 62 ms"><polyline fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="2,21.8 13.3,15.1 24.7,24 36,10.7 47.3,12.9 58.7,4 70,5.8" /><circle cx="70" cy="5.8" r="2.5" fill="currentColor" /></svg>
+                </li>
+                <li>
+                  <p>Sleep<strong>7<small>h</small> 32<small>m</small></strong></p>
+                  <svg viewBox="0 0 72 28" role="img" aria-label="Sleep trend over 7 days, between 6 h 12 m and 7 h 54 m a night"><polyline fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="2,16.9 13.3,13.4 24.7,24 36,9.9 47.3,4 58.7,14.6 70,8.4" /><circle cx="70" cy="8.4" r="2.5" fill="currentColor" /></svg>
+                </li>
+                <li>
+                  <p>Steps<strong>11,240</strong></p>
+                  <svg viewBox="0 0 72 28" role="img" aria-label="Steps trend over 7 days, between 6,800 and 13,000 a day"><polyline fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="2,19.5 13.3,5.9 24.7,16.6 36,24 47.3,4 58.7,12.1 70,9.7" /><circle cx="70" cy="9.7" r="2.5" fill="currentColor" /></svg>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <figcaption>Illustration. Health sync is coming soon.</figcaption>
+        </figure>
+
+        <div class="health-foot">
+          <ul class="ticks">
+            <li><svg aria-hidden="true"><use href="#i-check" /></svg><span><strong>Ride metrics on every ride</strong><small>Heart rate, zones, cadence and power alongside your speed and splits.</small></span></li>
+            <li><svg aria-hidden="true"><use href="#i-check" /></svg><span><strong>Device-recorded rides land in your history</strong><small>Ride with just your bike computer and it still shows up in your logbook.</small></span></li>
+            <li><svg aria-hidden="true"><use href="#i-check" /></svg><span><strong>Daily wellness on your profile</strong><small>Resting heart rate, HRV, sleep and steps, with the trend.</small></span></li>
+          </ul>
+          <div>
+            <p class="kicker">Planned connections</p>
+            <ul class="chips devices">
+              <li class="chip"><svg class="icon-svg" aria-hidden="true"><use href="#i-watch" /></svg>Apple Watch (Apple Health)</li>
+              <li class="chip"><svg class="icon-svg" aria-hidden="true"><use href="#i-watch" /></svg>Garmin Connect</li>
+              <li class="chip"><svg class="icon-svg" aria-hidden="true"><use href="#i-watch" /></svg>Wahoo</li>
+              <li class="chip"><svg class="icon-svg" aria-hidden="true"><use href="#i-watch" /></svg>Hammerhead</li>
+              <li class="chip"><svg class="icon-svg" aria-hidden="true"><use href="#i-watch" /></svg>Zwift</li>
+              <li class="chip"><svg class="icon-svg" aria-hidden="true"><use href="#i-watch" /></svg>Fitbit</li>
+              <li class="chip"><svg class="icon-svg" aria-hidden="true"><use href="#i-heart-pulse" /></svg>WHOOP</li>
+              <li class="chip"><svg class="icon-svg" aria-hidden="true"><use href="#i-heart-pulse" /></svg>Oura</li>
+              <li class="chip"><svg class="icon-svg" aria-hidden="true"><use href="#i-heart-pulse" /></svg>Samsung and Pixel (Health Connect)</li>
+              <li class="chip"><svg class="icon-svg" aria-hidden="true"><use href="#i-file" /></svg>Any FIT, TCX or GPX file</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="integrations" aria-labelledby="integrations-title">
+      <div class="wrap strip">
+        <div>
+          <h2 id="integrations-title">On your bars and in your apps</h2>
+          <p>Take routes to your bike computer and send rides where you already keep them.</p>
+        </div>
+        <ul class="chips">
+          <li class="chip"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="6" /><polyline points="12 10 12 12 13 13" /><path d="m16.13 7.66-.81-4.05a2 2 0 0 0-2-1.61h-2.68a2 2 0 0 0-2 1.61l-.78 4.05" /><path d="m7.88 16.36.8 4a2 2 0 0 0 2 1.61h2.72a2 2 0 0 0 2-1.61l.81-4.05" /></svg>Apple Watch <span class="tag">Free</span></li>
+          <li class="chip"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" /></svg>Apple Health <span class="tag soon">Soon</span></li>
+          <li class="chip"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m17 2 4 4-4 4" /><path d="M3 11v-1a4 4 0 0 1 4-4h14" /><path d="m7 22-4-4 4-4" /><path d="M21 13v1a4 4 0 0 1-4 4H3" /></svg>Strava <span class="tag premium">Premium</span></li>
+          <li class="chip"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="m7 10 5 5 5-5" /><path d="M12 15V3" /></svg>Garmin / Wahoo export <span class="tag">Free</span></li>
+          <li class="chip"><svg class="icon-svg" aria-hidden="true"><use href="#i-heart-pulse" /></svg>Health data sync <span class="tag soon">Soon</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="cities" aria-labelledby="cities-title">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="kicker">City guides</p>
+          <h2 id="cities-title">London, area by area</h2>
+          <p>Popular routes, neighbourhoods, sportives and cyclist-friendly hotels, gathered into one guide per part of town.</p>
+        </div>
+        <div class="cities">
+          <article class="city">
+            <figure class="ph photo wide"><img src="https://images.unsplash.com/photo-1560706834-c8b400d29d37?auto=format&amp;fit=crop&amp;q=70&amp;w=800&amp;h=450" srcset="https://images.unsplash.com/photo-1560706834-c8b400d29d37?auto=format&amp;fit=crop&amp;q=70&amp;w=480&amp;h=270 480w, https://images.unsplash.com/photo-1560706834-c8b400d29d37?auto=format&amp;fit=crop&amp;q=70&amp;w=800&amp;h=450 800w, https://images.unsplash.com/photo-1560706834-c8b400d29d37?auto=format&amp;fit=crop&amp;q=70&amp;w=1200&amp;h=675 1200w" sizes="(min-width: 1000px) 360px, (min-width: 640px) 50vw, 100vw" alt="Sunlight through an avenue of trees in a London park" loading="lazy" decoding="async" /><figcaption class="credit">Photo: <a href="https://unsplash.com/@iv2fi?utm_source=bikeme&amp;utm_medium=referral">V2F</a> / <a href="https://unsplash.com/photos/a-line-of-trees-and-sunlight-GGSfZJmWd6Q?utm_source=bikeme&amp;utm_medium=referral">Unsplash</a></figcaption></figure>
+            <h3>Central</h3>
+            <p>Royal parks, the Serpentine and early-morning laps past the landmarks.</p>
+            <button type="button" class="btn secondary small" title="Demo: not connected yet" aria-describedby="demo-hint">Open guide</button>
+          </article>
+          <article class="city">
+            <figure class="ph photo wide"><img src="https://images.unsplash.com/photo-1723249882680-e7d99144d7c2?auto=format&amp;fit=crop&amp;crop=focalpoint&amp;fp-y=0.75&amp;q=70&amp;w=800&amp;h=450" srcset="https://images.unsplash.com/photo-1723249882680-e7d99144d7c2?auto=format&amp;fit=crop&amp;crop=focalpoint&amp;fp-y=0.75&amp;q=70&amp;w=480&amp;h=270 480w, https://images.unsplash.com/photo-1723249882680-e7d99144d7c2?auto=format&amp;fit=crop&amp;crop=focalpoint&amp;fp-y=0.75&amp;q=70&amp;w=800&amp;h=450 800w, https://images.unsplash.com/photo-1723249882680-e7d99144d7c2?auto=format&amp;fit=crop&amp;crop=focalpoint&amp;fp-y=0.75&amp;q=70&amp;w=1200&amp;h=675 1200w" sizes="(min-width: 1000px) 360px, (min-width: 640px) 50vw, 100vw" alt="Two people on a bench looking across the heath" loading="lazy" decoding="async" /><figcaption class="credit">Photo: <a href="https://unsplash.com/@morannge?utm_source=bikeme&amp;utm_medium=referral">ivan malyi</a> / <a href="https://unsplash.com/photos/two-people-sitting-on-a-bench-in-a-field--uqBgLmLPWM?utm_source=bikeme&amp;utm_medium=referral">Unsplash</a></figcaption></figure>
+            <h3>North</h3>
+            <p>Heath hills, Regent's Canal towpath and wooded trails.</p>
+            <button type="button" class="btn secondary small" title="Demo: not connected yet" aria-describedby="demo-hint">Open guide</button>
+          </article>
+          <article class="city">
+            <figure class="ph photo wide"><img src="https://images.unsplash.com/photo-1559497353-d304de9f3647?auto=format&amp;fit=crop&amp;q=70&amp;w=800&amp;h=450" srcset="https://images.unsplash.com/photo-1559497353-d304de9f3647?auto=format&amp;fit=crop&amp;q=70&amp;w=480&amp;h=270 480w, https://images.unsplash.com/photo-1559497353-d304de9f3647?auto=format&amp;fit=crop&amp;q=70&amp;w=800&amp;h=450 800w, https://images.unsplash.com/photo-1559497353-d304de9f3647?auto=format&amp;fit=crop&amp;q=70&amp;w=1200&amp;h=675 1200w" sizes="(min-width: 1000px) 360px, (min-width: 640px) 50vw, 100vw" alt="The red Orbit tower in Queen Elizabeth Olympic Park" loading="lazy" decoding="async" /><figcaption class="credit">Photo: <a href="https://unsplash.com/@mikeballet?utm_source=bikeme&amp;utm_medium=referral">Tom Wheatley</a> / <a href="https://unsplash.com/photos/white-and-red-tower-sqVnnuKD-Zw?utm_source=bikeme&amp;utm_medium=referral">Unsplash</a></figcaption></figure>
+            <h3>East</h3>
+            <p>Olympic Park loops, Victoria Park and the River Lea.</p>
+            <button type="button" class="btn secondary small" title="Demo: not connected yet" aria-describedby="demo-hint">Open guide</button>
+          </article>
+          <article class="city">
+            <figure class="ph photo wide"><img src="https://images.unsplash.com/photo-1642582466531-92118d16f5df?auto=format&amp;fit=crop&amp;q=70&amp;w=800&amp;h=450" srcset="https://images.unsplash.com/photo-1642582466531-92118d16f5df?auto=format&amp;fit=crop&amp;q=70&amp;w=480&amp;h=270 480w, https://images.unsplash.com/photo-1642582466531-92118d16f5df?auto=format&amp;fit=crop&amp;q=70&amp;w=800&amp;h=450 800w, https://images.unsplash.com/photo-1642582466531-92118d16f5df?auto=format&amp;fit=crop&amp;q=70&amp;w=1200&amp;h=675 1200w" sizes="(min-width: 1000px) 360px, (min-width: 640px) 50vw, 100vw" alt="View from Greenwich Park across to the Canary Wharf skyline" loading="lazy" decoding="async" /><figcaption class="credit">Photo: <a href="https://unsplash.com/@zeynepelifko?utm_source=bikeme&amp;utm_medium=referral">zeynep elif ozdemir</a> / <a href="https://unsplash.com/photos/a-view-of-a-city-from-a-distance-9GhOPB2Teus?utm_source=bikeme&amp;utm_medium=referral">Unsplash</a></figcaption></figure>
+            <h3>South</h3>
+            <p>Greenwich and the Prime Meridian, commons and Crystal Palace.</p>
+            <button type="button" class="btn secondary small" title="Demo: not connected yet" aria-describedby="demo-hint">Open guide</button>
+          </article>
+          <article class="city">
+            <figure class="ph photo wide"><img src="https://images.unsplash.com/photo-1581549072287-436a6fe3880f?auto=format&amp;fit=crop&amp;q=70&amp;w=800&amp;h=450" srcset="https://images.unsplash.com/photo-1581549072287-436a6fe3880f?auto=format&amp;fit=crop&amp;q=70&amp;w=480&amp;h=270 480w, https://images.unsplash.com/photo-1581549072287-436a6fe3880f?auto=format&amp;fit=crop&amp;q=70&amp;w=800&amp;h=450 800w, https://images.unsplash.com/photo-1581549072287-436a6fe3880f?auto=format&amp;fit=crop&amp;q=70&amp;w=1200&amp;h=675 1200w" sizes="(min-width: 1000px) 360px, (min-width: 640px) 50vw, 100vw" alt="Deer grazing in a London park" loading="lazy" decoding="async" /><figcaption class="credit">Photo: <a href="https://unsplash.com/@zoltantasi?utm_source=bikeme&amp;utm_medium=referral">Zoltan Tasi</a> / <a href="https://unsplash.com/photos/brown-and-white-deer-on-green-grass-field-during-daytime-E3G06Av4jAU?utm_source=bikeme&amp;utm_medium=referral">Unsplash</a></figcaption></figure>
+            <h3>West</h3>
+            <p>Richmond Park, Kew and long, quiet riverside miles.</p>
+            <button type="button" class="btn secondary small" title="Demo: not connected yet" aria-describedby="demo-hint">Open guide</button>
+          </article>
+          <article class="city">
+            <figure class="ph photo wide"><img src="https://images.unsplash.com/photo-1765924362722-c73be2a1c076?auto=format&amp;fit=crop&amp;q=70&amp;w=800&amp;h=450" srcset="https://images.unsplash.com/photo-1765924362722-c73be2a1c076?auto=format&amp;fit=crop&amp;q=70&amp;w=480&amp;h=270 480w, https://images.unsplash.com/photo-1765924362722-c73be2a1c076?auto=format&amp;fit=crop&amp;q=70&amp;w=800&amp;h=450 800w, https://images.unsplash.com/photo-1765924362722-c73be2a1c076?auto=format&amp;fit=crop&amp;q=70&amp;w=1200&amp;h=675 1200w" sizes="(min-width: 1000px) 360px, (min-width: 640px) 50vw, 100vw" alt="The Thames Embankment with the London skyline" loading="lazy" decoding="async" /><figcaption class="credit">Photo: <a href="https://unsplash.com/@philippeb?utm_source=bikeme&amp;utm_medium=referral">Philippe BONTEMPS</a> / <a href="https://unsplash.com/photos/river-thames-embankment-with-london-skyline-and-bare-trees-rcOalLch-Xs?utm_source=bikeme&amp;utm_medium=referral">Unsplash</a></figcaption></figure>
+            <h3>Thames</h3>
+            <p>Bridge-to-bridge loops and point-to-point rides along the river.</p>
+            <button type="button" class="btn secondary small" title="Demo: not connected yet" aria-describedby="demo-hint">Open guide</button>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="routes" aria-labelledby="routes-title">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 id="routes-title">Across London and the South East</h2>
+          <p>Sixty rides checked and voiced, from a 15 km spin round the Lee Valley VeloPark to 102 km round the Isle of Wight.</p>
+        </div>
+        <div id="route-groups"></div>
+        <p class="routes-note">Plus any route you draw yourself. <a href="/app/">Browse them all in the app</a>.</p>
+      </div>
+    </section>
+
+    <section id="pricing" aria-labelledby="pricing-title">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="kicker">Plans</p>
+          <h2 id="pricing-title">Free to ride. <mark>More if you want it.</mark></h2>
+          <p>No ads on any plan. Voice navigation and every route stay free.</p>
+        </div>
+        <div class="plans">
+          <article class="plan">
+            <div>
+              <h3>Free</h3>
+              <p class="for">For everyone</p>
+            </div>
+            <div>
+              <p class="price">£0</p>
+              <p class="price-alt">Forever</p>
+            </div>
+            <ul class="ticks">
+              <li><svg aria-hidden="true"><use href="#i-check" /></svg>Turn-by-turn voice navigation</li>
+              <li><svg aria-hidden="true"><use href="#i-check" /></svg>Every route in the library</li>
+              <li><svg aria-hidden="true"><use href="#i-check" /></svg>Create routes, with a monthly cap</li>
+              <li><svg aria-hidden="true"><use href="#i-check" /></svg>Ride log, splits and GPX export</li>
+              <li><svg aria-hidden="true"><use href="#i-check" /></svg>Groups, challenges and badges</li>
+            </ul>
+            <button type="button" class="btn secondary block" title="Demo: not connected yet" aria-describedby="demo-hint">Start free</button>
+          </article>
+
+          <article class="plan featured">
+            <p class="badge">Most popular</p>
+            <div>
+              <h3>Premium</h3>
+              <p class="for">For riders who want more</p>
+            </div>
+            <div>
+              <p class="price">£4.99<small>/ month</small></p>
+              <p class="price-alt">or £44.99 a year, or £99 lifetime</p>
+            </div>
+            <ul class="ticks">
+              <li><svg aria-hidden="true"><use href="#i-check" /></svg>Everything in Free</li>
+              <li><svg aria-hidden="true"><use href="#i-check" /></svg>Topo and satellite maps, 3D flyover</li>
+              <li><svg aria-hidden="true"><use href="#i-check" /></svg>Unlimited route creation</li>
+              <li><svg aria-hidden="true"><use href="#i-check" /></svg>Live tracking link and interval training</li>
+              <li><svg aria-hidden="true"><use href="#i-check" /></svg>Strava sync, TCX with turn cues</li>
+              <li><svg aria-hidden="true"><use href="#i-check" /></svg>Enhanced voices</li>
+            </ul>
+            <button type="button" class="btn block" title="Demo: not connected yet" aria-describedby="demo-hint">Go Premium</button>
+          </article>
+
+          <article class="plan">
+            <div>
+              <h3>Creator</h3>
+              <p class="for">For clubs, coaches, sportives and publishers</p>
+            </div>
+            <div>
+              <p class="price">£16.99<small>/ month</small></p>
+              <p class="price-alt">or £169 a year. Includes Premium</p>
+            </div>
+            <ul class="ticks">
+              <li><svg aria-hidden="true"><use href="#i-check" /></svg>Everything in Premium</li>
+              <li><svg aria-hidden="true"><use href="#i-check" /></svg>Photos, logo and audio on your routes</li>
+              <li><svg aria-hidden="true"><use href="#i-check" /></svg>Pre-recorded audio clips</li>
+              <li><svg aria-hidden="true"><use href="#i-check" /></svg>Branded groups for your club</li>
+            </ul>
+            <button type="button" class="btn black block" title="Demo: not connected yet" aria-describedby="demo-hint">Become a creator</button>
+          </article>
+        </div>
+        <p class="preview-note">Everything is free during the preview</p>
+      </div>
+    </section>
+
+    <section id="business" aria-labelledby="business-title">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="kicker">For business</p>
+          <h2 id="business-title">Put your place on the cycling map</h2>
+          <p>Voice-guided routes for guests, participants, visitors and teams, with your name on them.</p>
+        </div>
+        <div class="biz">
+          <article class="seg major">
+            <figure class="ph photo"><picture><source media="(min-width: 1040px)" srcset="https://images.unsplash.com/photo-1637730826933-54287f79e1c3?auto=format&amp;fit=crop&amp;q=70&amp;w=240&amp;h=600 240w, https://images.unsplash.com/photo-1637730826933-54287f79e1c3?auto=format&amp;fit=crop&amp;q=70&amp;w=480&amp;h=1200 480w" sizes="225px" /><img src="https://images.unsplash.com/photo-1637730826933-54287f79e1c3?auto=format&amp;fit=crop&amp;q=70&amp;w=800&amp;h=600" srcset="https://images.unsplash.com/photo-1637730826933-54287f79e1c3?auto=format&amp;fit=crop&amp;q=70&amp;w=480&amp;h=360 480w, https://images.unsplash.com/photo-1637730826933-54287f79e1c3?auto=format&amp;fit=crop&amp;q=70&amp;w=800&amp;h=600 800w, https://images.unsplash.com/photo-1637730826933-54287f79e1c3?auto=format&amp;fit=crop&amp;q=70&amp;w=1300&amp;h=975 1300w" sizes="(min-width: 1040px) 225px, (min-width: 768px) calc(100vw - 92px), calc(100vw - 60px)" alt="A spacious hotel lobby" loading="lazy" decoding="async" /></picture><figcaption class="credit">Photo: <a href="https://unsplash.com/@jakobowens1?utm_source=bikeme&amp;utm_medium=referral">Jakob Owens</a> / <a href="https://unsplash.com/photos/a-large-room-with-a-lot-of-people-in-it-vIA62568oFs?utm_source=bikeme&amp;utm_medium=referral">Unsplash</a></figcaption></figure>
+            <div class="seg-body">
+              <h3>Hotels &amp; hospitality</h3>
+              <p class="pitch">Give every guest a ride that starts at your front door and talks them round the neighbourhood.</p>
+              <ul class="ticks">
+                <li><svg aria-hidden="true"><use href="#i-check" /></svg>Voice-guided routes from the lobby, and staff-narrated rides</li>
+                <li><svg aria-hidden="true"><use href="#i-check" /></svg>Brand page, QR cards and a digital hotel guide</li>
+                <li><svg aria-hidden="true"><use href="#i-check" /></svg>Concierge mapping tool for your team</li>
+                <li><svg aria-hidden="true"><use href="#i-check" /></svg>Listing in the cyclist-friendly hotel finder</li>
+                <li><svg aria-hidden="true"><use href="#i-check" /></svg>Usage analytics</li>
+              </ul>
+              <p class="meta">Starter trial, then an annual programme.</p>
+              <button type="button" class="btn black" title="Demo: not connected yet" aria-describedby="demo-hint">Book a demo</button>
+            </div>
+          </article>
+
+          <article class="seg major">
+            <figure class="ph photo"><picture><source media="(min-width: 1040px)" srcset="https://images.unsplash.com/photo-1596727362302-b8d891c42ab8?auto=format&amp;fit=crop&amp;q=70&amp;w=240&amp;h=600 240w, https://images.unsplash.com/photo-1596727362302-b8d891c42ab8?auto=format&amp;fit=crop&amp;q=70&amp;w=480&amp;h=1200 480w" sizes="225px" /><img src="https://images.unsplash.com/photo-1596727362302-b8d891c42ab8?auto=format&amp;fit=crop&amp;q=70&amp;w=800&amp;h=600" srcset="https://images.unsplash.com/photo-1596727362302-b8d891c42ab8?auto=format&amp;fit=crop&amp;q=70&amp;w=480&amp;h=360 480w, https://images.unsplash.com/photo-1596727362302-b8d891c42ab8?auto=format&amp;fit=crop&amp;q=70&amp;w=800&amp;h=600 800w, https://images.unsplash.com/photo-1596727362302-b8d891c42ab8?auto=format&amp;fit=crop&amp;q=70&amp;w=1300&amp;h=975 1300w" sizes="(min-width: 1040px) 225px, (min-width: 768px) calc(100vw - 92px), calc(100vw - 60px)" alt="A crowd filling a city street during a mass participation event" loading="lazy" decoding="async" /></picture><figcaption class="credit">Photo: <a href="https://unsplash.com/@amutiomi?utm_source=bikeme&amp;utm_medium=referral">Miguel A Amutio</a> / <a href="https://unsplash.com/photos/people-walking-on-street-during-daytime-TqOFeBqnqrI?utm_source=bikeme&amp;utm_medium=referral">Unsplash</a></figcaption></figure>
+            <div class="seg-body">
+              <h3>Races &amp; events</h3>
+              <p class="pitch">Guide riders round your course, keep spectators on their dots and give sponsors a voice.</p>
+              <ul class="ticks">
+                <li><svg aria-hidden="true"><use href="#i-check" /></svg>Course maps and embeds for your website</li>
+                <li><svg aria-hidden="true"><use href="#i-check" /></svg>Audio course guidance with sponsor messages</li>
+                <li><svg aria-hidden="true"><use href="#i-check" /></svg>Live tracking for spectators</li>
+                <li><svg aria-hidden="true"><use href="#i-check" /></svg>Leaderboards, virtual races and badges</li>
+                <li><svg aria-hidden="true"><use href="#i-check" /></svg>GPS timing and participant how-tos</li>
+              </ul>
+              <p class="meta">Self-serve for free, or paid setup.</p>
+              <button type="button" class="btn black" title="Demo: not connected yet" aria-describedby="demo-hint">Book a demo</button>
+            </div>
+          </article>
+
+          <article class="seg">
+            <figure class="ph photo"><img src="https://images.unsplash.com/photo-1574854985846-97f10ecc922c?auto=format&amp;fit=crop&amp;q=70&amp;w=800&amp;h=600" srcset="https://images.unsplash.com/photo-1574854985846-97f10ecc922c?auto=format&amp;fit=crop&amp;q=70&amp;w=480&amp;h=360 480w, https://images.unsplash.com/photo-1574854985846-97f10ecc922c?auto=format&amp;fit=crop&amp;q=70&amp;w=800&amp;h=600 800w, https://images.unsplash.com/photo-1574854985846-97f10ecc922c?auto=format&amp;fit=crop&amp;q=70&amp;w=1300&amp;h=975 1300w" sizes="(min-width: 1040px) 225px, (min-width: 720px) calc(50vw - 50px), calc(100vw - 60px)" alt="Tower Bridge at golden hour" loading="lazy" decoding="async" /><figcaption class="credit">Photo: <a href="https://unsplash.com/@neotronimz?utm_source=bikeme&amp;utm_medium=referral">Nirmal Rajendharkumar</a> / <a href="https://unsplash.com/photos/tower-bridge-during-golden-hour-qOW53gmp0cw?utm_source=bikeme&amp;utm_medium=referral">Unsplash</a></figcaption></figure>
+            <div class="seg-body">
+              <h3>Tourism &amp; destinations</h3>
+              <p class="pitch">Show visitors your city at cycling speed.</p>
+              <ul class="ticks">
+                <li><svg aria-hidden="true"><use href="#i-check" /></svg>City guides</li>
+                <li><svg aria-hidden="true"><use href="#i-check" /></svg>Themed trails and audio tours</li>
+                <li><svg aria-hidden="true"><use href="#i-check" /></svg>Challenge series</li>
+              </ul>
+              <button type="button" class="btn secondary small" title="Demo: not connected yet" aria-describedby="demo-hint">Book a demo</button>
+            </div>
+          </article>
+
+          <article class="seg">
+            <figure class="ph photo"><img src="https://images.unsplash.com/photo-1607962837359-5e7e89f86776?auto=format&amp;fit=crop&amp;q=70&amp;w=800&amp;h=600" srcset="https://images.unsplash.com/photo-1607962837359-5e7e89f86776?auto=format&amp;fit=crop&amp;q=70&amp;w=480&amp;h=360 480w, https://images.unsplash.com/photo-1607962837359-5e7e89f86776?auto=format&amp;fit=crop&amp;q=70&amp;w=800&amp;h=600 800w, https://images.unsplash.com/photo-1607962837359-5e7e89f86776?auto=format&amp;fit=crop&amp;q=70&amp;w=1300&amp;h=975 1300w" sizes="(min-width: 1040px) 225px, (min-width: 720px) calc(50vw - 50px), calc(100vw - 60px)" alt="A group of people exercising together outdoors" loading="lazy" decoding="async" /><figcaption class="credit">Photo: <a href="https://unsplash.com/@gabinvallet?utm_source=bikeme&amp;utm_medium=referral">Gabin Vallet</a> / <a href="https://unsplash.com/photos/man-in-black-t-shirt-and-black-shorts-running-on-road-during-daytime-J154nEkpzlQ?utm_source=bikeme&amp;utm_medium=referral">Unsplash</a></figcaption></figure>
+            <div class="seg-body">
+              <h3>Corporate wellness</h3>
+              <p class="pitch">Get teams moving together, wherever they work.</p>
+              <ul class="ticks">
+                <li><svg aria-hidden="true"><use href="#i-check" /></svg>Team challenges</li>
+                <li><svg aria-hidden="true"><use href="#i-check" /></svg>Virtual races</li>
+                <li><svg aria-hidden="true"><use href="#i-check" /></svg>Leaderboards</li>
+              </ul>
+              <button type="button" class="btn secondary small" title="Demo: not connected yet" aria-describedby="demo-hint">Book a demo</button>
+            </div>
+          </article>
+
+          <article class="seg">
+            <figure class="ph photo"><img src="https://images.unsplash.com/photo-1759674804375-3d0c038a0a6a?auto=format&amp;fit=crop&amp;q=70&amp;w=800&amp;h=600" srcset="https://images.unsplash.com/photo-1759674804375-3d0c038a0a6a?auto=format&amp;fit=crop&amp;q=70&amp;w=480&amp;h=360 480w, https://images.unsplash.com/photo-1759674804375-3d0c038a0a6a?auto=format&amp;fit=crop&amp;q=70&amp;w=800&amp;h=600 800w, https://images.unsplash.com/photo-1759674804375-3d0c038a0a6a?auto=format&amp;fit=crop&amp;q=70&amp;w=1300&amp;h=975 1300w" sizes="(min-width: 1040px) 225px, (min-width: 720px) calc(50vw - 50px), calc(100vw - 60px)" alt="Athletes racing past in a blur" loading="lazy" decoding="async" /><figcaption class="credit">Photo: <a href="https://unsplash.com/@pierreantoinef?utm_source=bikeme&amp;utm_medium=referral">Pierre-Antoine FRANCK</a> / <a href="https://unsplash.com/photos/runners-in-a-race-with-motion-blur-OpDIYfAb4WQ?utm_source=bikeme&amp;utm_medium=referral">Unsplash</a></figcaption></figure>
+            <div class="seg-body">
+              <h3>Brands &amp; sponsors</h3>
+              <p class="pitch">Be heard mid-ride, not scrolled past.</p>
+              <ul class="ticks">
+                <li><svg aria-hidden="true"><use href="#i-check" /></svg>Audio activations along routes</li>
+                <li><svg aria-hidden="true"><use href="#i-check" /></svg>Branded routes</li>
+                <li><svg aria-hidden="true"><use href="#i-check" /></svg>Share images and badges</li>
+              </ul>
+              <p class="meta">Usually alongside a race or hotel.</p>
+              <button type="button" class="btn secondary small" title="Demo: not connected yet" aria-describedby="demo-hint">Book a demo</button>
+            </div>
+          </article>
+
+          <article class="seg">
+            <figure class="ph photo"><img src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&amp;fit=crop&amp;q=70&amp;w=800&amp;h=600" srcset="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&amp;fit=crop&amp;q=70&amp;w=480&amp;h=360 480w, https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&amp;fit=crop&amp;q=70&amp;w=800&amp;h=600 800w, https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&amp;fit=crop&amp;q=70&amp;w=1300&amp;h=975 1300w" sizes="(min-width: 1040px) 225px, (min-width: 720px) calc(50vw - 50px), calc(100vw - 60px)" alt="Three people silhouetted against the morning sky, exercising outdoors" loading="lazy" decoding="async" /><figcaption class="credit">Photo: <a href="https://unsplash.com/@fitmasu?utm_source=bikeme&amp;utm_medium=referral">Fitsum Admasu</a> / <a href="https://unsplash.com/photos/silhouette-of-three-women-running-on-grey-concrete-road-oGv9xIl7DkY?utm_source=bikeme&amp;utm_medium=referral">Unsplash</a></figcaption></figure>
+            <div class="seg-body">
+              <h3>Clubs &amp; coaches</h3>
+              <p class="pitch">Publish your routes and manage your group in one place.</p>
+              <ul class="ticks">
+                <li><svg aria-hidden="true"><use href="#i-check" /></svg>Creator plan for publishing routes</li>
+                <li><svg aria-hidden="true"><use href="#i-check" /></svg>Branded and private groups</li>
+                <li><svg aria-hidden="true"><use href="#i-check" /></svg>Your own audio clips on routes</li>
+                <li><svg aria-hidden="true"><use href="#i-check" /></svg>Club challenges and leaderboards</li>
+              </ul>
+              <button type="button" class="btn secondary small" title="Demo: not connected yet" aria-describedby="demo-hint">Book a demo</button>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq" aria-labelledby="faq-title">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 id="faq-title">Questions</h2>
+        </div>
+        <div class="faq">
+          <details>
+            <summary>Is BikeMe free?</summary>
+            <p>Yes. Everything is free during the preview. After that, voice navigation, every route and route creation stay free, and Premium and Creator add extras for riders, clubs and sportives who want more.</p>
+          </details>
+          <details>
+            <summary>Which phones does it work on?</summary>
+            <p>Right now it works in the browser on iPhone and Android, so you can try it today without installing anything. Dedicated iPhone and Android apps are coming soon, with Apple Watch to follow.</p>
+          </details>
+          <details>
+            <summary>Will BikeMe work with my Garmin, Wahoo or Apple Watch?</summary>
+            <p>Health sync is coming soon. It will bring heart rate, cadence, power, training load, sleep and recovery from Apple Watch, Garmin, Wahoo and other devices into each ride and your profile, and rides recorded on your bike computer will land in your history. Today you can download any route as a GPX file and load it onto a Garmin or Wahoo device as a course, and Premium adds TCX with turn cues.</p>
+          </details>
+          <details>
+            <summary>Does it work offline?</summary>
+            <p>Download for offline is on the way and will be free. In the preview, open your route while you have signal before you set off.</p>
+          </details>
+          <details>
+            <summary>Can I make my own routes?</summary>
+            <p>Yes. Tap points on the map and the route snaps to real paths, then add your own voice messages anywhere along it. You can also import a GPX file. Free includes a monthly number of routes, Premium makes it unlimited.</p>
+          </details>
+          <details>
+            <summary>How do hotels and races get started?</summary>
+            <p>Book a demo and we'll map your first routes with you. Hotels begin with a starter trial, then move to an annual programme. Races can set up for free themselves, or have us do the setup.</p>
+          </details>
+          <details>
+            <summary>What happens to my location?</summary>
+            <p>Your location is used to guide you along the route. In the preview, your routes and ride history are stored on your own device. Live tracking will only share your position when you switch it on and send the link.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section id="get-started" class="band dark" aria-labelledby="band-title">
+      <div class="wrap">
+        <div>
+          <h2 id="band-title">Your next ride<br /><span>starts here</span></h2>
+          <p>Free in your browser. No sign-up.</p>
+        </div>
+        <a class="btn" href="/app/">Open BikeMe</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <a class="brand" href="/">Bike<span>Me</span></a>
+      <p>Photos from Unsplash · Map data © OpenStreetMap contributors · Map tiles © CARTO</p>
+      <p>© 2026 BikeMe</p>
+    </div>
+  </footer>
+
+  <script>
+    // Scale the live app to fit the phone mockup: the app is laid out at a real phone's 390 px.
+    (function () {
+      var phone = document.getElementById('phone');
+      var frame = phone && phone.querySelector('iframe');
+      if (!frame) return;
+      function fit() { frame.style.transform = 'scale(' + phone.clientWidth / 390 + ')'; }
+      fit();
+      if ('ResizeObserver' in window) new ResizeObserver(fit).observe(phone);
+      else window.addEventListener('resize', fit);
+    })();
+
+    // Route list from the same data file the app uses, generated at build time into routes.json.
+    fetch('/routes.json')
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (routes) {
+        var groups = document.getElementById('route-groups');
+        // One list per region, in library order, shortest route first within each.
+        var regions = [];
+        routes.forEach(function (route) {
+          var name = route.region || 'More routes';
+          if (regions.indexOf(name) === -1) regions.push(name);
+        });
+        regions.forEach(function (region) {
+          var heading = document.createElement('h3');
+          heading.className = 'route-region';
+          heading.textContent = region;
+          var list = document.createElement('div');
+          list.className = 'routes';
+          list.setAttribute('role', 'list');
+          list.setAttribute('aria-label', region + ' routes');
+          groups.appendChild(heading);
+          groups.appendChild(list);
+          routes
+            .filter(function (route) { return (route.region || 'More routes') === region; })
+            .sort(function (a, b) { return a.distance - b.distance; })
+            .forEach(function (route) {
+              var a = document.createElement('a');
+              a.className = 'route';
+              a.setAttribute('role', 'listitem');
+              a.href = '/app/route/' + encodeURIComponent(route.id);
+              var km = document.createElement('div');
+              km.className = 'km';
+              km.textContent = (route.distance / 1000).toFixed(1);
+              var unit = document.createElement('small');
+              unit.textContent = 'KM';
+              km.appendChild(unit);
+              var text = document.createElement('div');
+              var name = document.createElement('strong');
+              name.textContent = route.name;
+              var meta = document.createElement('span');
+              meta.textContent = route.area + ' · ' + (route.loop ? 'Loop' : 'A to B') + ' · ' + route.ascent + ' m climb';
+              text.appendChild(name);
+              text.appendChild(meta);
+              a.appendChild(km);
+              a.appendChild(text);
+              list.appendChild(a);
+            });
+        });
+      })
+      .catch(function () {});
+  </script>
+</body>
+</html>

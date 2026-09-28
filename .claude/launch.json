@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "bikeme-app-web",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "C:/dev/bikeme/app", "run", "web", "--", "--port", "8082", "--clear"],
+      "port": 8082
+    },
+    {
+      "name": "bikeme-prod",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["C:/dev/bikeme/scripts/serve-out.mjs", "4174"],
+      "port": 4174
+    }
+  ]
+}
