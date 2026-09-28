@@ -47,9 +47,9 @@ panel — press **Demo ride** on any route to watch a simulated ride, complete w
 without needing real GPS or to leave your desk. Narrower windows get the app full-screen, with a
 compact demo bar inside the ride screen instead of the side panel.
 
-The production build is live at **https://bikeme-clifton-ai-team.vercel.app**: the marketing site
-at `/`, the app at `/app`, and the route library at `/routes.json`. (`bikeme.vercel.app` belongs to
-an unrelated project, not this one.)
+The production build is live at **https://bikeme-usgc.vercel.app**: the marketing site at `/`,
+the app at `/app`, and the route library at `/routes.json`. Every push to `main` redeploys it.
+(`bikeme.vercel.app` belongs to an unrelated project, not this one.)
 
 ## Demo features
 

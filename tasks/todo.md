@@ -16,7 +16,7 @@ out of scope here — other agents are converting it in parallel.
       photo showed runners (see report — photos flagged for replacement).
 - [x] `site/favicon.svg` — already green (`#22C55E`); no change needed, verified.
 - [x] `README.md` — rewritten for BikeMe: independent-duplicate framing, deployed Vercel project
-      (`bikeme` in team `clifton-ai-team`, https://bikeme-clifton-ai-team.vercel.app), OSRM bike
+      (`bikeme-usgc` in team `clifton-ai-team`, https://bikeme-usgc.vercel.app), OSRM bike
       profile, cycling cue distances, storage keys `bikeme:routes:v1` / `bikeme:rides:v1`,
       `/ride/[id]` route, PowerShell-safe absolute-path commands. Route library rebuilt: 60
       cycling routes (10 per region across six regions, OSRM bike profile), documented in
@@ -35,8 +35,9 @@ out of scope here — other agents are converting it in parallel.
   region across London, Kent, Sussex, Surrey, Hampshire & Isle of Wight and Thames Valley, 15–102 km.
   README's **Regenerating routes** section documents this; the old "Known gap" section referencing
   118 running/foot-profile routes has been removed.
-- A Vercel project now exists for BikeMe (`bikeme`, team `clifton-ai-team`), deployed from
-  `C:\dev\bikeme` (no git repo) — README's **Project status** section updated accordingly.
+- BikeMe now has its own repo, [CLIFTONFLACK/bikeme](https://github.com/CLIFTONFLACK/bikeme), and
+  Vercel project `bikeme-usgc` (team `clifton-ai-team`), which deploys every push to `main` to
+  https://bikeme-usgc.vercel.app. The earlier CLI-deployed project `bikeme` is superseded.
 
 ## Verification
 
