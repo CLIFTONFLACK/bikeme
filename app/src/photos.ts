@@ -1,6 +1,7 @@
 // Demo photography, hotlinked from Unsplash's image CDN (as Unsplash recommends). Every photo is free
-// under the Unsplash License, checked on its photo page on 2026-09-17. The same set is used on the
-// website (site/index.html), so the app and the site stay visually consistent.
+// under the Unsplash License, checked on its photo page on 2026-09-17 (the four cycling photos on
+// 2026-09-28). The same set is used on the website (site/index.html), so the app and the site stay
+// visually consistent.
 
 export interface Photo {
   id: string;
@@ -18,11 +19,11 @@ export const PHOTOS = {
   west: { id: 'photo-1581549072287-436a6fe3880f', alt: 'Deer grazing in a London park', author: 'Zoltan Tasi' },
   thames: { id: 'photo-1765924362722-c73be2a1c076', alt: 'The Thames Embankment with the London skyline', author: 'Philippe BONTEMPS' },
   hotel: { id: 'photo-1637730826933-54287f79e1c3', alt: 'A spacious hotel lobby', author: 'Jakob Owens' },
-  race: { id: 'photo-1596727362302-b8d891c42ab8', alt: 'A crowd filling a city street during an event', author: 'Miguel A Amutio' },
+  race: { id: 'photo-1510766528597-60f9f1c154b6', alt: 'A peloton of racing cyclists on a tree-lined road', author: 'Rob Wingate' },
   tourism: { id: 'photo-1574854985846-97f10ecc922c', alt: 'Tower Bridge at golden hour', author: 'Nirmal Rajendharkumar' },
-  corporate: { id: 'photo-1607962837359-5e7e89f86776', alt: 'A group of people exercising together outdoors', author: 'Gabin Vallet' },
-  brands: { id: 'photo-1759674804375-3d0c038a0a6a', alt: 'Athletes racing past in a blur', author: 'Pierre-Antoine FRANCK' },
-  clubs: { id: 'photo-1552674605-db6ffd4facb5', alt: 'Three people silhouetted against the morning sky', author: 'Fitsum Admasu' },
+  corporate: { id: 'photo-1605050825077-289f85b6cf43', alt: 'Three cyclists riding together round a bend on a quiet road', author: 'Munbaik Cycling Clothing' },
+  brands: { id: 'photo-1486425091969-f62210f08a26', alt: 'Racing cyclists speeding past in a blur', author: 'paolo candelo' },
+  clubs: { id: 'photo-1735216228027-fe31c23474ce', alt: 'A small group of cyclists on a country lane at sunset', author: 'David Dvořáček' },
 } satisfies Record<string, Photo>;
 
 export type PhotoKey = keyof typeof PHOTOS;
